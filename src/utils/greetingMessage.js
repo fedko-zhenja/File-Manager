@@ -1,9 +1,5 @@
-export function createGreetingMessage () {
-    const userNameArray = process.argv
-        .filter((el) => el.includes('--username='))
-        .map((el) => el.replace('--username=', ''));
+import { messages } from "../data/messages.js";
 
-    const userName = userNameArray[0] ?? 'Stranger';
-
-    console.log(`Welcome to the File Manager, ${userName}!`);
+export function createGreetingMessage (userName) {
+    console.log(`${messages.greeting}, ${userName}!`);
 }

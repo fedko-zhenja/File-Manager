@@ -1,3 +1,3 @@
-import { createGreetingMessage } from "./utils/greetingMessage.js";
+import { FileManager } from "./fileManager.js";
 
-createGreetingMessage();
+const fileManager = new FileManager();
