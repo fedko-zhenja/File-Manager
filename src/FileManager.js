@@ -3,6 +3,7 @@ import { createGreetingMessage } from "./utils/greetingMessage.js";
 import { getUserName } from "./utils/userName.js";
 import { commandNamesArray } from "./data/comandNames.js";
 import { createIncorrectMessage } from "./utils/incorrectMessage.js";
+import { createCurrentDirMessage } from "./utils/currentDirMessage.js";
 
 export class FileManager {
     constructor() {
