@@ -6,11 +6,14 @@ import { createCurrentDirMessage } from "./utils/currentDirMessage.js";
 import { createFailedMessage } from "./utils/failedMessage.js";
 import fs from 'fs/promises';
 import path from 'node:path';
+import { homedir } from 'node:os';
 
 export class FileManager {
     constructor() {
         this.userName = getUserName();
-        this.currentDir = process.cwd();
+        this.currentDirectory = homedir();
+        // this.homeDirectory = homedir();
+        // console.log('homeDirectory', this.homeDirectory)
 
         createGreetingMessage(this.userName);
 
@@ -25,7 +28,7 @@ export class FileManager {
 
         this.commands = {
             exit: this.exit,
-            // 'up', 
+            up: this.up,
             // 'cd', 
             ls: this.ls,
             // 'cat', 
@@ -44,7 +47,15 @@ export class FileManager {
     commandListener = async (userCommand) => {
         const command = this.commands[userCommand];
         command ? await command() : createIncorrectMessage();
-        createCurrentDirMessage();
+        createCurrentDirMessage(this.currentDirectory);
+    }
+
+    up = () => {
+        const parentDirectory = path.resolve(this.currentDirectory, '..');
+
+        if (parentDirectory !== this.currentDirectory) {
+            this.currentDirectory = parentDirectory;
+        }
     }
 
     exit = () => {
@@ -53,11 +64,11 @@ export class FileManager {
 
     ls = async () => {
         try {
-            const filesAndDirsArr = await fs.readdir(this.currentDir);
+            const filesAndDirsArr = await fs.readdir(this.currentDirectory);
  
             const sortedItemArray = (await Promise.all(
                 filesAndDirsArr.map(async (el) => {
-                    const elPath = path.join(this.currentDir, el);
+                    const elPath = path.join(this.currentDirectory, el);
                     const elStats = await fs.stat(elPath);
             
                     return {
@@ -73,7 +84,7 @@ export class FileManager {
             });
             console.table(sortedItemArray);
         } catch (error) {
-            createFailedMessage();
+            createFailedMessage(error);
         }
     }
 }
