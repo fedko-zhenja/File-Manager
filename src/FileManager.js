@@ -36,7 +36,7 @@ export class FileManager {
             cd: this.cd,
             ls: this.ls,
             cat: this.cat,
-            // 'add', 
+            add: this.add,
             // 'rn', 
             // 'cp', 
             // 'mv', 
@@ -53,6 +53,11 @@ export class FileManager {
         command ? await command(args) : createIncorrectMessage();
 
         createCurrentDirMessage(this.currentDirectory);
+    }
+
+    add = async (args) => {
+        const filePath = path.resolve(this.currentDirectory, args[0]);
+        await fs.writeFile(filePath, '');
     }
 
     cat = async (args) => {
