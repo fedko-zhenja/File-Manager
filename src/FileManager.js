@@ -8,6 +8,7 @@ import fs from 'fs/promises';
 import path from 'node:path';
 import { homedir } from 'node:os';
 import { createReadStream } from "fs";
+import { messages } from "./data/messages.js";
 
 export class FileManager {
     constructor() {
@@ -37,7 +38,7 @@ export class FileManager {
             ls: this.ls,
             cat: this.cat,
             add: this.add,
-            // 'rn', 
+            rn: this.rn,
             // 'cp', 
             // 'mv', 
             // 'rm', 
@@ -53,6 +54,23 @@ export class FileManager {
         command ? await command(args) : createIncorrectMessage();
 
         createCurrentDirMessage(this.currentDirectory);
+    }
+
+    rn = async (args) => {
+        const oldFile = path.resolve(this.currentDirectory, args[0]);
+        const newFile = path.resolve(this.currentDirectory, args[1]);
+
+        try {
+            await fs.access(newFile); 
+            createFailedMessage(messages.fileExists);
+        } catch {
+            try {
+                await fs.access(oldFile);
+                await fs.rename(oldFile, newFile);
+            } catch(error) {
+                createFailedMessage(error); 
+            }
+        }
     }
 
     add = async (args) => {

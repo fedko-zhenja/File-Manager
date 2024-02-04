@@ -4,4 +4,5 @@ export const messages = {
     incorrect: 'Incorrect command. Try again.',
     currentDir: 'You are currently in',
     failed: 'Operation failed',
+    fileExists: 'Such a file already exists',
 }
