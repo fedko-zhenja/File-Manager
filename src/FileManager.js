@@ -19,7 +19,10 @@ export class FileManager {
 
         process.stdin.on('data', async (data) => {
             const userCommand = data.toString().toLowerCase().trim();
-            this.commandListener(userCommand);
+            
+            const [command, ...args] = userCommand.split(' ');
+            // console.log(command, args);
+            this.commandListener(command, args);
         })
 
         process.on('SIGINT', () => {
@@ -29,7 +32,7 @@ export class FileManager {
         this.commands = {
             exit: this.exit,
             up: this.up,
-            // 'cd', 
+            cd: this.cd,
             ls: this.ls,
             // 'cat', 
             // 'add', 
@@ -44,10 +47,23 @@ export class FileManager {
         }
     }
 
-    commandListener = async (userCommand) => {
+    commandListener = async (userCommand, args) => {
+        // console.log(userCommand, args);
         const command = this.commands[userCommand];
-        command ? await command() : createIncorrectMessage();
+        command ? await command(args) : createIncorrectMessage();
         createCurrentDirMessage(this.currentDirectory);
+    }
+
+    cd = async (args) => {
+        console.log('args cd', args);
+        const newPath = path.resolve(this.currentDirectory, args[0]);
+
+        try {
+            await fs.access(newPath);
+            this.currentDirectory = newPath;
+        } catch(error) {
+            createFailedMessage(error);
+        }
     }
 
     up = () => {
