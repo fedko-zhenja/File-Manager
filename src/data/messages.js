@@ -3,4 +3,5 @@ export const messages = {
     exit: ['Thank you for using File Manager', 'goodbye'],
     incorrect: 'Incorrect command. Try again.',
     currentDir: 'You are currently in',
+    failed: 'Operation failed',
 }
