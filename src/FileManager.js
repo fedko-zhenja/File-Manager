@@ -7,6 +7,7 @@ import { createFailedMessage } from "./utils/failedMessage.js";
 import fs from 'fs/promises';
 import path from 'node:path';
 import { homedir } from 'node:os';
+import { createReadStream } from "fs";
 
 export class FileManager {
     constructor() {
@@ -34,7 +35,7 @@ export class FileManager {
             up: this.up,
             cd: this.cd,
             ls: this.ls,
-            // 'cat', 
+            cat: this.cat,
             // 'add', 
             // 'rn', 
             // 'cp', 
@@ -48,14 +49,38 @@ export class FileManager {
     }
 
     commandListener = async (userCommand, args) => {
-        // console.log(userCommand, args);
         const command = this.commands[userCommand];
         command ? await command(args) : createIncorrectMessage();
+
         createCurrentDirMessage(this.currentDirectory);
     }
 
+    cat = async (args) => {
+        const filePath = path.resolve(this.currentDirectory, args[0]);
+
+        try {
+            await fs.access(filePath);
+            
+            const readStream = createReadStream(filePath);
+
+            const dataPromise = new Promise((resolve) => {
+                readStream.on('data', (chunk) => {
+                    process.stdout.write(chunk);
+                });
+    
+                readStream.on('end', () => {
+                    resolve();
+                });
+            });
+    
+            await dataPromise;
+            
+        } catch(error) {
+            createFailedMessage(error);
+        }
+    }
+
     cd = async (args) => {
-        console.log('args cd', args);
         const newPath = path.resolve(this.currentDirectory, args[0]);
 
         try {
