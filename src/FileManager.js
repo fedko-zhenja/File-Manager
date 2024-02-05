@@ -12,6 +12,7 @@ import { messages } from "./static/messages.js";
 import { basename, resolve } from "path";
 import { OsInfo } from "./utils/osInfo.js";
 import crypto from 'node:crypto';
+import zlib from 'node:zlib';
 
 export class FileManager {
     constructor() {
@@ -48,8 +49,8 @@ export class FileManager {
             rm: this.rm,
             os: this.os,
             hash: this.hash,
-            // 'compress', 
-            // 'decompress'
+            compress: this.compress,
+            decompress: this.decompress,
         }
     }
 
@@ -58,6 +59,52 @@ export class FileManager {
         command ? await command(args) : createIncorrectMessage();
 
         createCurrentDirMessage(this.currentDirectory);
+    }
+
+    compress = async (args) => {
+        const filePath = path.resolve(this.currentDirectory, args[0]);
+        const folderPath = path.resolve(this.currentDirectory, args[1]);
+
+        try {
+            await fs.access(filePath);
+            await fs.access(folderPath).catch(() => fs.writeFile(folderPath, ''));
+
+            const readStream = createReadStream(filePath);
+            const writeStream = createWriteStream(folderPath);
+            const brotliStream = zlib.createBrotliCompress();
+
+            readStream.pipe(brotliStream).pipe(writeStream);
+
+            await new Promise((res, rej) => {
+                writeStream.on('finish', res);
+                writeStream.on('error', rej);
+            })
+        } catch (error) {
+            createFailedMessage(error);
+        }
+    }
+
+    decompress = async (args) => {
+        const filePath = path.resolve(this.currentDirectory, args[0]);
+        const folderPath = path.resolve(this.currentDirectory, args[1]);
+
+        try {
+            await fs.access(filePath);
+            await fs.access(folderPath).catch(() => fs.writeFile(folderPath, ''));
+
+            const readStream = createReadStream(filePath);
+            const writeStream = createWriteStream(folderPath);
+            const brotliStream = zlib.createBrotliDecompress();
+
+            readStream.pipe(brotliStream).pipe(writeStream);
+
+            await new Promise((res, rej) => {
+                writeStream.on('finish', res);
+                writeStream.on('error', rej);
+            })
+        } catch (error) {
+            createFailedMessage(error);
+        }
     }
 
     hash = async (args) => {
