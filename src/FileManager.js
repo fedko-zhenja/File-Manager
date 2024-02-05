@@ -64,6 +64,9 @@ export class FileManager {
         } else if (userCommand === 'exit')  {
             createIncorrectMessage();
             createCurrentDirMessage(this.currentDirectory);
+        } else if (userCommand !== 'ls' && userCommand !== 'up' && args.length === 0) {
+            createIncorrectMessage();
+            createCurrentDirMessage(this.currentDirectory);
         } else {
             const command = this.commands[userCommand];
             command ? await command(args) : createIncorrectMessage();
