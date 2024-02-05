@@ -11,6 +11,7 @@ import { createReadStream, createWriteStream } from "fs";
 import { messages } from "./static/messages.js";
 import { basename, resolve } from "path";
 import { OsInfo } from "./utils/osInfo.js";
+import crypto from 'node:crypto';
 
 export class FileManager {
     constructor() {
@@ -46,7 +47,7 @@ export class FileManager {
             mv: this.mv,
             rm: this.rm,
             os: this.os,
-            // 'hash', 
+            hash: this.hash,
             // 'compress', 
             // 'decompress'
         }
@@ -57,6 +58,24 @@ export class FileManager {
         command ? await command(args) : createIncorrectMessage();
 
         createCurrentDirMessage(this.currentDirectory);
+    }
+
+    hash = async (args) => {
+        const filePath = path.resolve(this.currentDirectory, args[0]);
+
+        try {
+            await fs.access(filePath);
+
+            const hash = crypto.createHash('sha256');
+            const fileData = await fs.readFile(filePath);
+
+            hash.update(fileData);
+
+            const finalHash = hash.digest('hex');
+            console.log(finalHash);
+        } catch (error) {
+            createFailedMessage(error);
+        }
     }
 
     os = (args) => {
