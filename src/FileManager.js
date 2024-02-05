@@ -41,7 +41,7 @@ export class FileManager {
             add: this.add,
             rn: this.rn,
             cp: this.cp, 
-            // 'mv', 
+            mv: this.mv,
             rm: this.rm,
             // 'os', 
             // 'hash', 
@@ -55,6 +55,16 @@ export class FileManager {
         command ? await command(args) : createIncorrectMessage();
 
         createCurrentDirMessage(this.currentDirectory);
+    }
+
+    mv = async (args) => {
+        try {
+            const resalt = await this.cp(args);
+            resalt.isError ? null : await this.rm([args[0]]);
+        } catch (error) {
+            console.log(1)
+            createFailedMessage(error);
+        }
     }
 
     rm = async (args) => {
@@ -71,6 +81,7 @@ export class FileManager {
     cp = async (args) => {
         const filePath = path.resolve(this.currentDirectory, args[0]);
         const folderPath = path.resolve(this.currentDirectory, args[1]);
+        const resalt = {isError: false};
 
         try {
             await fs.access(filePath);
@@ -89,6 +100,9 @@ export class FileManager {
             });
         } catch (error) {
             createFailedMessage(error);
+            resalt.isError = true;
+        } finally {
+            return resalt;
         }
     }
 
