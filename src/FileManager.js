@@ -13,14 +13,13 @@ import { basename, resolve } from "path";
 import { OsInfo } from "./utils/osInfo.js";
 import crypto from 'node:crypto';
 import zlib from 'node:zlib';
+import { compressAndDecompress } from "./utils/compressAndDecompress.js";
 
 export class FileManager {
     constructor() {
         this.userName = getUserName();
         this.currentDirectory = homedir();
         this.osInfo = new OsInfo();
-        // this.homeDirectory = homedir();
-        // console.log('homeDirectory', this.homeDirectory)
 
         createGreetingMessage(this.userName);
 
@@ -28,7 +27,6 @@ export class FileManager {
             const userCommand = data.toString().toLowerCase().trim();
             
             const [command, ...args] = userCommand.split(' ');
-            // console.log(command, args);
             this.commandListener(command, args);
         })
 
@@ -62,49 +60,11 @@ export class FileManager {
     }
 
     compress = async (args) => {
-        const filePath = path.resolve(this.currentDirectory, args[0]);
-        const folderPath = path.resolve(this.currentDirectory, args[1]);
-
-        try {
-            await fs.access(filePath);
-            await fs.access(folderPath).catch(() => fs.writeFile(folderPath, ''));
-
-            const readStream = createReadStream(filePath);
-            const writeStream = createWriteStream(folderPath);
-            const brotliStream = zlib.createBrotliCompress();
-
-            readStream.pipe(brotliStream).pipe(writeStream);
-
-            await new Promise((res, rej) => {
-                writeStream.on('finish', res);
-                writeStream.on('error', rej);
-            })
-        } catch (error) {
-            createFailedMessage(error);
-        }
+        await compressAndDecompress(this.currentDirectory, args, 'compress');
     }
 
     decompress = async (args) => {
-        const filePath = path.resolve(this.currentDirectory, args[0]);
-        const folderPath = path.resolve(this.currentDirectory, args[1]);
-
-        try {
-            await fs.access(filePath);
-            await fs.access(folderPath).catch(() => fs.writeFile(folderPath, ''));
-
-            const readStream = createReadStream(filePath);
-            const writeStream = createWriteStream(folderPath);
-            const brotliStream = zlib.createBrotliDecompress();
-
-            readStream.pipe(brotliStream).pipe(writeStream);
-
-            await new Promise((res, rej) => {
-                writeStream.on('finish', res);
-                writeStream.on('error', rej);
-            })
-        } catch (error) {
-            createFailedMessage(error);
-        }
+        await compressAndDecompress(this.currentDirectory, args, 'decompress');
     }
 
     hash = async (args) => {
