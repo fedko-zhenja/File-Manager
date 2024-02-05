@@ -42,7 +42,7 @@ export class FileManager {
             rn: this.rn,
             cp: this.cp, 
             // 'mv', 
-            // 'rm', 
+            rm: this.rm,
             // 'os', 
             // 'hash', 
             // 'compress', 
@@ -55,6 +55,17 @@ export class FileManager {
         command ? await command(args) : createIncorrectMessage();
 
         createCurrentDirMessage(this.currentDirectory);
+    }
+
+    rm = async (args) => {
+        const filePath = path.resolve(this.currentDirectory, args[0]);
+
+        try {
+            await fs.access(filePath);
+            await fs.unlink(filePath);
+        } catch (error) {
+            createFailedMessage(error);
+        }
     }
 
     cp = async (args) => {
