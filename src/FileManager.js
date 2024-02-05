@@ -9,10 +9,9 @@ import path from 'node:path';
 import { homedir } from 'node:os';
 import { createReadStream, createWriteStream } from "fs";
 import { messages } from "./static/messages.js";
-import { basename, resolve } from "path";
+import { basename } from "path";
 import { OsInfo } from "./utils/osInfo.js";
 import crypto from 'node:crypto';
-import zlib from 'node:zlib';
 import { compressAndDecompress } from "./utils/compressAndDecompress.js";
 
 export class FileManager {
@@ -27,7 +26,9 @@ export class FileManager {
             const userCommand = data.toString().toLowerCase().trim();
             
             const [command, ...args] = userCommand.split(' ');
+
             this.commandListener(command, args);
+            
         })
 
         process.on('SIGINT', () => {
@@ -53,10 +54,22 @@ export class FileManager {
     }
 
     commandListener = async (userCommand, args) => {
-        const command = this.commands[userCommand];
-        command ? await command(args) : createIncorrectMessage();
+        if (userCommand === '.exit') {
+            userCommand = userCommand.replace(".", "");
 
-        createCurrentDirMessage(this.currentDirectory);
+            const command = this.commands[userCommand];
+            command ? await command(args) : createIncorrectMessage();
+    
+            createCurrentDirMessage(this.currentDirectory);
+        } else if (userCommand === 'exit')  {
+            createIncorrectMessage();
+            createCurrentDirMessage(this.currentDirectory);
+        } else {
+            const command = this.commands[userCommand];
+            command ? await command(args) : createIncorrectMessage();
+    
+            createCurrentDirMessage(this.currentDirectory);
+        }
     }
 
     compress = async (args) => {
