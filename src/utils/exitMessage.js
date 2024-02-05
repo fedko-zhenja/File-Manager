@@ -1,6 +1,6 @@
-import { messages } from "../data/messages.js";
+import { messages } from "../static/messages.js";
 
 export function createExitMessage (userName) {
-    console.log('\x1b[32m%s\x1b[0m', `${messages.exit[0]}, ${userName}, ${messages.exit[1]}!`)
+    console.log('\n\x1b[32m%s\x1b[0m', `${messages.exit[0]}, ${userName}, ${messages.exit[1]}!`)
     process.exit();
 }

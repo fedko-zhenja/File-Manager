@@ -1,4 +1,4 @@
-import { messages } from "../data/messages.js";
+import { messages } from "../static/messages.js";
 import { createCurrentDirMessage } from "./currentDirMessage.js";
 import { homedir } from 'node:os';
 

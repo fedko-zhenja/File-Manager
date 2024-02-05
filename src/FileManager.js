@@ -8,13 +8,15 @@ import fs from 'fs/promises';
 import path from 'node:path';
 import { homedir } from 'node:os';
 import { createReadStream, createWriteStream } from "fs";
-import { messages } from "./data/messages.js";
+import { messages } from "./static/messages.js";
 import { basename, resolve } from "path";
+import { OsInfo } from "./utils/osInfo.js";
 
 export class FileManager {
     constructor() {
         this.userName = getUserName();
         this.currentDirectory = homedir();
+        this.osInfo = new OsInfo();
         // this.homeDirectory = homedir();
         // console.log('homeDirectory', this.homeDirectory)
 
@@ -43,7 +45,7 @@ export class FileManager {
             cp: this.cp, 
             mv: this.mv,
             rm: this.rm,
-            // 'os', 
+            os: this.os,
             // 'hash', 
             // 'compress', 
             // 'decompress'
@@ -55,6 +57,10 @@ export class FileManager {
         command ? await command(args) : createIncorrectMessage();
 
         createCurrentDirMessage(this.currentDirectory);
+    }
+
+    os = (args) => {
+        this.osInfo.commandListener(args);
     }
 
     mv = async (args) => {

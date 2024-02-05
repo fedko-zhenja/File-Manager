@@ -1,4 +1,4 @@
-import { messages } from "../data/messages.js";
+import { messages } from "../static/messages.js";
 
 export function createCurrentDirMessage (currentDirectory) {
     const terminalWidth = process.stdout.columns;
